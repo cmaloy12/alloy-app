@@ -1,26 +1,63 @@
 import US_STATES from '../data/states';
 import './XBankForm.css';
 import { useState } from 'react';
-export default function MyForm() {
-  const [applicant, setApplicant] = useState({ name_first: "", name_last: "", address_line_1: "", address_line_2: "", address_city: "", address_state: "", address_postal_code: "", address_country_code: "US", document_ssn: "", email_address: "", phone_number: "", birth_date: "", });
-  const [responseData, setResponseData] = useState(null);
 
+const INITIAL_APPLICANT = {
+  name_first: "",
+  name_last: "",
+  address_line_1: "",
+  address_line_2: "",
+  address_city: "",
+  address_state: "",
+  address_postal_code: "",
+  address_country_code: "US",
+  document_ssn: "",
+  email_address: "",
+  phone_number: "",
+  birth_date: "",
+};
+
+const OUTCOME_MESSAGES = {
+  "Approved": "Congratulations, your application has been approved!",
+  "Manual Review": "Your application has been received. Xcellent Bank will contact you soon with the result.",
+  "Denied": "We are unable to open your account at this time.",
+};
+
+   export default function MyForm() {
+
+   const [applicant, setApplicant] = useState(INITIAL_APPLICANT);
+
+   const [responseData, setResponseData] = useState(null);
+   
   function handleChange(e) {
     const { name, value } = e.target;
     setApplicant({ ...applicant, [name]: value });
   }
 
+    function handleReset() {
+    setApplicant(INITIAL_APPLICANT);
+    setResponseData(null);
+  }
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+      e.preventDefault();
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(applicant),
     };
 
-    const response = await fetch('/api/evaluations/', requestOptions);
-    const data = await response.json();
-    setResponseData(data);
+    try {
+      const response = await fetch('/api/evaluations/', requestOptions);
+      const data = await response.json();
+      if (!response.ok) {
+        setResponseData({ error: true });
+        return;
+      }
+      setResponseData(data);
+    } catch {
+      setResponseData({ error: true });
+    }
   }
 
   return (
@@ -101,8 +138,20 @@ export default function MyForm() {
       />  
       </label>
       </fieldset>
-    <input type="submit" />  
-    {responseData && <div>Response: {JSON.stringify(responseData)}</div>}
+      
+      <div className="form-actions">
+      <input type="submit" className="form-btn" />
+      <button type="button" className="form-btn" onClick={handleReset}>Clear Form</button>
+      {responseData && (
+        <div className="outcome-message">
+          {responseData.error
+            ? "Something went wrong. Please try again."
+            : OUTCOME_MESSAGES[responseData.summary?.outcome] ??
+              "Your application has been received."}
+      </div>
+      )}
+    </div>
     </form>
   )
+
 }

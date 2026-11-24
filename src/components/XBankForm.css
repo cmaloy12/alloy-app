@@ -39,7 +39,9 @@
 }
 
 .xbank-form button[type="submit"],
-.xbank-form input[type="submit"] {
+.xbank-form input[type="submit"],
+.xbank-form button  
+{
   align-self: flex-start;
   padding: 10px 32px;
   font-size: 1rem;
@@ -48,6 +50,17 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.xbank-form .form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.xbank-form .outcome-message {
+  font-weight: 600;
 }
 
 @media (max-width: 600px) {
